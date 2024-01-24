@@ -1,0 +1,98 @@
+name: Build
+
+on:
+
+  workflow_dispatch:
+
+  push:
+
+  pull_request:
+
+
+
+
+permissions:
+  contents: write  #publish release
+
+
+jobs:
+
+  build_mac_x86:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ Release, Debug ]
+    runs-on: macos-latest
+    name: "x86_64 macos ${{ matrix.config }}"
+    steps:
+    - name: Install Dependencies
+      run: |
+        xcode-select --install
+        brew install automake fdk-aac git lame libass libtool libvorbis libvpx \
+        opus sdl shtool texi2html theora wget x264 x265 xvid nasm
+    - uses: actions/checkout@v3
+    - name: Run on architecture
+      run: |
+        ./configure  --prefix=/usr/local --enable-gpl --enable-nonfree --enable-libass \
+        --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+        --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-libopus --enable-libxvid \
+        --samples=fate-suite/
+        make
+    - uses: actions/upload-artifact@v3.1.2
+      with:
+        name: ffmpeg-x86_64-macos-${{ matrix.config }}
+        path: build/*.dylib
+        if-no-files-found: error
+
+#  build_mac_arm64:
+#    strategy:
+#      fail-fast: false
+#      matrix:
+#        arch: [ aarch64 ]
+#        config: [ Release, Debug ]
+#    runs-on: macos-13-xl
+#    name: "${{ matrix.arch }} macos ${{ matrix.config }}"
+#    steps:
+#    - name: Install Dependencies
+#      run: |
+#        xcode-select --install
+#        brew install automake fdk-aac git lame libass libtool libvorbis libvpx \
+#        opus sdl shtool texi2html theora wget x264 x265 xvid nasm
+#    - uses: actions/checkout@v3
+#    - name: Run on architecture
+#      run: |
+#        ./configure  --prefix=/usr/local --enable-gpl --enable-nonfree --enable-libass \
+#        --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
+#        --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-libopus --enable-libxvid \
+#        --samples=fate-suite/
+#        make
+#    - uses: actions/upload-artifact@v3.1.2
+#      with:
+#        name: ffmpeg-${{ matrix.arch }}-macos-${{ matrix.config }}
+#        path: build/*.dylib
+#        if-no-files-found: error
+
+  vendor_package:
+    needs:
+      - build_mac_x86
+#      - build_mac_arm64
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/download-artifact@v3.0.2
+      with:
+        path: ffmpeg
+    - uses: actions/upload-artifact@v3.1.2
+      with:
+        name: ffmpeg_vendor_package_all_builds
+        path: ffmpeg
+        if-no-files-found: error
+    - run: 7z a -tzip ffmpeg.zip ffmpeg
+    - name: Create Release
+      uses: ncipollo/release-action@v1.12.0
+      with:
+        artifactErrorsFailBuild: true
+        artifacts: ffmpeg.zip
+        prerelease: false
+        replacesArtifacts: true
+        tag: FFMPEG-VER-2-12-1_${{ github.run_number }}-${{ github.run_attempt }}
+        allowUpdates: true
