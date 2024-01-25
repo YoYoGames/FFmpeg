@@ -32,11 +32,11 @@ jobs:
       - name: Run on architecture
         run: |
           conan profile detect
-          conan install conanfile.txt --build=missing -r conancenter
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-x86_64-macos-${{ matrix.config }}
-          path: build/*.dylib
+          path: out/**/*.*
           if-no-files-found: error
 
   vendor_package:
