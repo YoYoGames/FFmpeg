@@ -53,8 +53,9 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run on architecture
         run: |
+          conan remove --system-reqs "*"
           conan profile detect
-          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-x86_64-linux-${{ matrix.config }}
