@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          wget and tar -xvf conan executable
+          sudo pip install conan
       - uses: actions/checkout@v3
       - name: Run on architecture
         run: |
