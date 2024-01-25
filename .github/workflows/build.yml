@@ -17,6 +17,50 @@ permissions:
 
 jobs:
 
+  build_win_x86:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ Release ]
+    runs-on: windows-latest
+    name: "x86_64 win ${{ matrix.config }}"
+    steps:
+      - name: Install Dependencies
+        run: |
+          pip install conan
+      - uses: actions/checkout@v3
+      - name: Run on architecture
+        run: |
+          conan profile detect
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ffmpeg-x86_64-win-${{ matrix.config }}
+          path: out/**/*.*
+          if-no-files-found: error
+
+  build_linux_x86:
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [ Release ]
+    runs-on: ubuntu-latest
+    name: "x86_64 linux ${{ matrix.config }}"
+    steps:
+      - name: Install Dependencies
+        run: |
+          wget and tar -xvf conan executable
+      - uses: actions/checkout@v3
+      - name: Run on architecture
+        run: |
+          conan profile detect
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ffmpeg-x86_64-linux-${{ matrix.config }}
+          path: out/**/*.*
+          if-no-files-found: error
+
   build_mac_x86:
     strategy:
       fail-fast: false
@@ -63,6 +107,8 @@ jobs:
 
   vendor_package:
     needs:
+      - build_win_x86
+      - build_linux_x86
       - build_mac_x86
       - build_mac_arm64
     runs-on: ubuntu-22.04
