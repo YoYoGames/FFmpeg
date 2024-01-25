@@ -25,51 +25,18 @@ jobs:
     runs-on: macos-latest
     name: "x86_64 macos ${{ matrix.config }}"
     steps:
-    - name: Install Dependencies
-      run: |
-        brew install automake fdk-aac git lame libass libtool libvorbis libvpx \
-        opus sdl shtool texi2html theora wget x264 x265 xvid nasm
-    - uses: actions/checkout@v3
-    - name: Run on architecture
-      run: |
-        ./configure  --prefix=/usr/local --enable-gpl --enable-nonfree --enable-libass \
-        --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
-        --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-libopus --enable-libxvid \
-        --samples=fate-suite/
-        make
-    - uses: actions/upload-artifact@v3.1.2
-      with:
-        name: ffmpeg-x86_64-macos-${{ matrix.config }}
-        path: build/*.dylib
-        if-no-files-found: error
-
-#  build_mac_arm64:
-#    strategy:
-#      fail-fast: false
-#      matrix:
-#        arch: [ aarch64 ]
-#        config: [ Release, Debug ]
-#    runs-on: macos-13-xl
-#    name: "${{ matrix.arch }} macos ${{ matrix.config }}"
-#    steps:
-#    - name: Install Dependencies
-#      run: |
-#        xcode-select --install
-#        brew install automake fdk-aac git lame libass libtool libvorbis libvpx \
-#        opus sdl shtool texi2html theora wget x264 x265 xvid nasm
-#    - uses: actions/checkout@v3
-#    - name: Run on architecture
-#      run: |
-#        ./configure  --prefix=/usr/local --enable-gpl --enable-nonfree --enable-libass \
-#        --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame \
-#        --enable-libtheora --enable-libvorbis --enable-libvpx --enable-libx264 --enable-libx265 --enable-libopus --enable-libxvid \
-#        --samples=fate-suite/
-#        make
-#    - uses: actions/upload-artifact@v3.1.2
-#      with:
-#        name: ffmpeg-${{ matrix.arch }}-macos-${{ matrix.config }}
-#        path: build/*.dylib
-#        if-no-files-found: error
+      - name: Install Dependencies
+        run: |
+          brew install cmake conan
+      - uses: actions/checkout@v3
+      - name: Run on architecture
+        run: |
+          conan install conanfile.txt --build=missing -r conancenter
+      - uses: actions/upload-artifact@v3.1.2
+        with:
+          name: ffmpeg-x86_64-macos-${{ matrix.config }}
+          path: build/*.dylib
+          if-no-files-found: error
 
   vendor_package:
     needs:
