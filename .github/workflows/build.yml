@@ -1,19 +1,12 @@
 name: Build
 
 on:
-
   workflow_dispatch:
-
   push:
-
   pull_request:
-
-
-
 
 permissions:
   contents: write  #publish release
-
 
 jobs:
 
@@ -21,9 +14,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [ Release ]
+        build_type: ["Release"]
     runs-on: windows-latest
-    name: "x86_64 win ${{ matrix.config }}"
+    name: "x86_64 win ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
         run: |
@@ -35,7 +28,7 @@ jobs:
           conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
       - uses: actions/upload-artifact@v3.1.2
         with:
-          name: ffmpeg-x86_64-win-${{ matrix.config }}
+          name: ffmpeg-x86_64-win-${{ matrix.build_type }}
           path: out/**/*.*
           if-no-files-found: error
 
@@ -43,9 +36,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [ Release ]
+        build_type: ["Release"]
     runs-on: ubuntu-latest
-    name: "x86_64 linux ${{ matrix.config }}"
+    name: "x86_64 linux ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
         run: |
@@ -57,7 +50,7 @@ jobs:
           conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - uses: actions/upload-artifact@v3.1.2
         with:
-          name: ffmpeg-x86_64-linux-${{ matrix.config }}
+          name: ffmpeg-x86_64-linux-${{ matrix.build_type }}
           path: out/**/*.*
           if-no-files-found: error
 
@@ -65,13 +58,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [ Release ]
+        build_type: [ "Release" ]
     runs-on: macos-latest
-    name: "x86_64 macos ${{ matrix.config }}"
+    name: "x86_64 macos ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
         run: |
-          brew install cmake conan
+          brew install --overwrite python@3.12 cmake conan
       - uses: actions/checkout@v3
       - name: Run on architecture
         run: |
@@ -79,7 +72,7 @@ jobs:
           conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
       - uses: actions/upload-artifact@v3.1.2
         with:
-          name: ffmpeg-x86_64-macos-${{ matrix.config }}
+          name: ffmpeg-x86_64-macos-${{ matrix.build_type }}
           path: out/**/*.*
           if-no-files-found: error
 
@@ -87,13 +80,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        config: [ Release ]
+        build_type: [ "Release" ]
     runs-on: macos-13-xl
-    name: "aarch64 macos ${{ matrix.config }}"
+    name: "aarch64 macos ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
         run: |
-          brew install cmake conan
+          export HOMEBREW_NO_AUTO_UPDATE=1
+          brew install --force --overwrite python@3.12 cmake conan
       - uses: actions/checkout@v3
       - name: Run on architecture
         run: |
@@ -101,7 +95,7 @@ jobs:
           conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=armv8
       - uses: actions/upload-artifact@v3.1.2
         with:
-          name: ffmpeg-aarch64-macos-${{ matrix.config }}
+          name: ffmpeg-aarch64-macos-${{ matrix.build_type }}
           path: out/**/*.*
           if-no-files-found: error
 
