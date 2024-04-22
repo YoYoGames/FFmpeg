@@ -8,6 +8,13 @@ cmake_layout
 [options]
 # Build settings
 ffmpeg/*:shared=True
+libfdk_aac/*:shared=True
+libiconv/*:shared=True
+libmp3lame/*:shared=True
+ogg/*:shared=True
+opus/*:shared=True
+vorbis/*:shared=True
+xz_utils/*:shared=True
 
 # Toggleable dependencies
 ffmpeg/*:with_asm=True
