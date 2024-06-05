@@ -232,6 +232,7 @@ class FFMpegConan(ConanFile):
         "with_pulse" : False,
         "with_vaapi" : False,
         "with_vdpau" : False,
+        "with_vulkan": False,
         "with_xcb" : False,
         "with_appkit" : False,
         "with_avfoundation" : False,
