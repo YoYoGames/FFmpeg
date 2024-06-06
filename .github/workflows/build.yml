@@ -25,7 +25,7 @@ jobs:
       - name: Run on architecture
         run: |
           conan profile detect
-          conan install conanfile.py --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-x86_64-win-${{ matrix.build_type }}
@@ -47,7 +47,7 @@ jobs:
       - name: Run on architecture
         run: |
           conan profile detect
-          conan install conanfile.py --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-x86_64-linux-${{ matrix.build_type }}
@@ -69,7 +69,7 @@ jobs:
       - name: Run on architecture
         run: |
           conan profile detect
-          conan install conanfile.py --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=x86_64
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-x86_64-macos-${{ matrix.build_type }}
@@ -92,7 +92,7 @@ jobs:
       - name: Run on architecture
         run: |
           conan profile detect
-          conan install conanfile.py --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=armv8
+          conan install conanfile.txt --build=missing -r conancenter --deployer full_deploy --output-folder out -s arch=armv8
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-aarch64-macos-${{ matrix.build_type }}
