@@ -22,6 +22,7 @@ required_conan_version = ">=1.57.0"
 class FFMpegConan(ConanFile):
     name = "ffmpeg"
     url = "https://github.com/conan-io/conan-center-index"
+    version = "6.1"
     description = "A complete, cross-platform solution to record, convert and stream audio and video"
     # https://github.com/FFmpeg/FFmpeg/blob/master/LICENSE.md
     license = ("LGPL-2.1-or-later", "GPL-2.0-or-later")
@@ -197,6 +198,7 @@ class FFMpegConan(ConanFile):
 
     default_options = {
         "shared" : True,
+        "fPIC": True,
         "libfdk_aac/*:shared" : True,
         "libiconv/*:shared" : True,
         "libmp3lame/*:shared" : True,
@@ -241,8 +243,8 @@ class FFMpegConan(ConanFile):
         "with_coreimage" : False,
         "with_programs": True,
         "with_libsvtav1": True,
-        "with_libaom": True,
-        "with_libdav1d": True,
+        "with_libaom": False,
+        "with_libdav1d": False,
         "with_xlib": False,
 
         # Minimal FFmpeg build settings,
@@ -251,8 +253,8 @@ class FFMpegConan(ConanFile):
         # We purposefully try to avoid system libraries like MediaFoundation
         "avdevice" : False,
         "avcodec" : True,
-        "avformat": False,
-        "avfilter": False,
+        "avformat": True,
+        "avfilter": True,
         "postproc" : False,
         "swresample" : True,
         "swscale" : False,
@@ -702,8 +704,8 @@ class FFMpegConan(ConanFile):
                 "--disable-stripping",
                 "--enable-debug",
             ])
-        if not self.options.with_programs:
-            args.append("--disable-programs")
+        #if not self.options.with_programs:
+        #    args.append("--disable-programs")
         # since ffmpeg"s build system ignores CC and CXX
         compilers_from_conf = self.conf.get("tools.build:compiler_executables", default={}, check_type=dict)
         buildenv_vars = VirtualBuildEnv(self).vars()
