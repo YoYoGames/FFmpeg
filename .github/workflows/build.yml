@@ -80,7 +80,7 @@ jobs:
           install_name_tool -add_rpath @executable_path/. ffmpeg
           popd
           pushd out
-          find . -type f -name "*.dylib" | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
+          find . -type f -name '*.dylib' | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
           popd
       - uses: actions/upload-artifact@v3.1.2
         with:
