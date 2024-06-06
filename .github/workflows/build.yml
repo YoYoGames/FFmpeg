@@ -73,6 +73,12 @@ jobs:
           conan profile detect
           conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
+      - name: Fixing rpaths
+        run: |
+          cd out/full_deploy/host/ffmpeg/6.1/Release/x86_64/bin
+          install_name_tool -add_rpath @executable_path/. ffmpeg
+          cd out
+          find . -type f -name "*.dylib" | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-x86_64-macos-${{ matrix.build_type }}
