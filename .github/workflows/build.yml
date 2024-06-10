@@ -81,7 +81,7 @@ jobs:
           install_name_tool -add_rpath @executable_path/. ffprobe
           popd
           pushd out
-          find . -type f -name '*.dylib' | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
+          find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
           popd
       - uses: actions/upload-artifact@v3.1.2
         with:
@@ -107,6 +107,16 @@ jobs:
           conan profile detect
           conan create conanfile.py --build=missing -r conancenter -s arch=armv8
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=armv8
+      - name: Fixing rpaths
+        run: |
+          ls
+          pushd out/full_deploy/host/ffmpeg/6.1/Release/armv8/bin
+          install_name_tool -add_rpath @executable_path/. ffmpeg
+          install_name_tool -add_rpath @executable_path/. ffprobe
+          popd
+          pushd out
+          find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/armv8/bin/
+          popd
       - uses: actions/upload-artifact@v3.1.2
         with:
           name: ffmpeg-aarch64-macos-${{ matrix.build_type }}
