@@ -293,7 +293,7 @@ class FFMpegConan(ConanFile):
         "enable_output_devices": None,
         "disable_all_filters": False,
         "disable_filters": None,
-        "enable_filters": "aresample",
+        "enable_filters": "aresample,showwavespic",
     }
 
     @property
