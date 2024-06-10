@@ -78,6 +78,7 @@ jobs:
           ls
           pushd out/full_deploy/host/ffmpeg/6.1/Release/x86_64/bin
           install_name_tool -add_rpath @executable_path/. ffmpeg
+          install_name_tool -add_rpath @executable_path/. ffprobe
           popd
           pushd out
           find . -type f -name '*.dylib' | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
