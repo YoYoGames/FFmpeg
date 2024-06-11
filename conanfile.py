@@ -197,6 +197,7 @@ class FFMpegConan(ConanFile):
     """
 
     default_options = {
+        # Library settings
         "shared" : True,
         "fPIC": True,
         "libfdk_aac/*:shared" : True,
@@ -259,14 +260,15 @@ class FFMpegConan(ConanFile):
         "swresample" : True,
         "swscale" : False,
 
+        # ffmpeg specific build configuration options
         "disable_everything" : True,
         "disable_all_hardware_accelerators" : True,
         "disable_all_encoders": False,
         "disable_encoders": None,
-        "enable_encoders": "aac,ac3,eac3,flac,mp2*,libmp3lame,opus,ra*,tta,libvorbis,wavpack,wma*,pcm*,truehd,mjpeg",
+        "enable_encoders": "aac,ac3,eac3,flac,mp2*,libmp3lame,opus,ra*,tta,libvorbis,wavpack,wma*,pcm*,truehd,mjpeg,tiff",
         "disable_all_decoders": False,
         "disable_decoders": None,
-        "enable_decoders": "aac,ac3,als,atrac*,eac3,flac,gsm*,mp1*,mp2*,mp3float,mp3,mpc*,opus,ra*,ralf,shorten,tak,tta,libvorbis,wavpack,wma*,pcm*,dsd*,truehd,mjpeg",
+        "enable_decoders": "aac,ac3,als,atrac*,eac3,flac,gsm*,mp1*,mp2*,mp3float,mp3,mpc*,opus,ra*,ralf,shorten,tak,tta,libvorbis,wavpack,wma*,pcm*,dsd*,truehd,mjpeg,tiff",
         "disable_hardware_accelerators": None,
         "enable_hardware_accelerators": None,
         "disable_all_muxers": False,
@@ -293,7 +295,7 @@ class FFMpegConan(ConanFile):
         "enable_output_devices": None,
         "disable_all_filters": False,
         "disable_filters": None,
-        "enable_filters": "aresample,showwavespic",
+        "enable_filters": "aresample,showwavespic,atempo,asetrate",
     }
 
     @property
