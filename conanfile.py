@@ -295,7 +295,7 @@ class FFMpegConan(ConanFile):
         "enable_output_devices": None,
         "disable_all_filters": False,
         "disable_filters": None,
-        "enable_filters": "aresample,showwavespic,atempo,asetrate",
+        "enable_filters": "aresample,showwavespic,atempo,asetrate,channelmap,channelsplit",
     }
 
     @property
