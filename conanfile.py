@@ -226,7 +226,7 @@ class FFMpegConan(ConanFile):
         "with_libvpx" : False,
         "with_libsvtav1" : False,
         "with_libmp3lame" : True,
-        "with_libfdk_aac" : True,
+        "with_libfdk_aac" : False,
         "with_libdav1d" : False,
         "with_libaom" : False,
         "with_libwebp" : False,
