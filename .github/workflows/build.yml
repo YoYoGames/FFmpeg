@@ -46,7 +46,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo pip install conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
@@ -71,7 +71,7 @@ jobs:
       - name: Install Dependencies
         run: |
           brew install --overwrite python@3.12 cmake conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
@@ -136,6 +136,7 @@ jobs:
     needs: [ build_mac_x86, build_mac_arm64 ]
     name: "Lipo-x86_64-aarch64-libs" 
     steps:
+      - uses: actions/checkout@v4      
       - uses: actions/download-artifact@v4
         with:
           name: mac_x86
