@@ -32,7 +32,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: win_x86
-          path: out/win
+          path: out/windows
           if-no-files-found: error
 
   build_linux_x86:
