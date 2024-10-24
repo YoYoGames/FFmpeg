@@ -156,6 +156,7 @@ jobs:
       - build_linux_x86
       - build_mac_x86
       - build_mac_arm64
+      - Lipo-x86_64-aarch64-libs
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/download-artifact@v4
