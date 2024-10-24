@@ -153,7 +153,7 @@ jobs:
         path: ffmpeg/linux
     - uses: actions/download-artifact@v4
       with:
-        name: win_x84
+        name: win_x86
         path: ffmpeg/windows                           
     - uses: actions/upload-artifact@v4
       with:
