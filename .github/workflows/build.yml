@@ -21,16 +21,18 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
           conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
-      - uses: actions/upload-artifact@v3.1.2
+      - name: Run the script to make the right folder
+        run: python3 ${{ github.workspace }}/.github/actions/win/win_build_script.py 
+      - uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-x86_64-win-${{ matrix.build_type }}
-          path: out/**/*.*
+          name: win_x86
+          path: out/windows
           if-no-files-found: error
 
   build_linux_x86:
@@ -44,16 +46,18 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo pip install conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
           conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
-      - uses: actions/upload-artifact@v3.1.2
+      - name: Run the script to make the right folder
+        run: python3 ${{ github.workspace }}/.github/actions/linux/linux_build_script.py 
+      - uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-x86_64-linux-${{ matrix.build_type }}
-          path: out/**/*.*
+          name: linux_x86
+          path: out/linux
           if-no-files-found: error
 
   build_mac_x86:
@@ -67,7 +71,7 @@ jobs:
       - name: Install Dependencies
         run: |
           brew install --overwrite python@3.12 cmake conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
@@ -83,10 +87,12 @@ jobs:
           pushd out
           find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
           popd
-      - uses: actions/upload-artifact@v3.1.2
+      - name: Run the script to make the right folder
+        run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py 
+      - uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-x86_64-macos-${{ matrix.build_type }}
-          path: out/**/*.*
+          name: mac_x86
+          path: out/macos
           if-no-files-found: error
 
   build_mac_arm64:
@@ -101,7 +107,7 @@ jobs:
         run: |
           export HOMEBREW_NO_AUTO_UPDATE=1
           brew install --force --overwrite python@3.11 python@3.12 cmake conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
@@ -117,10 +123,34 @@ jobs:
           pushd out
           find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/armv8/bin/
           popd
-      - uses: actions/upload-artifact@v3.1.2
+      - name: Run the script to make the right folder
+        run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py       
+      - uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-aarch64-macos-${{ matrix.build_type }}
-          path: out/**/*.*
+          name: mac_arm64
+          path: out/macos
+          if-no-files-found: error
+
+  Lipo-x86_64-aarch64-libs:
+    runs-on: macos-13-xl
+    needs: [ build_mac_x86, build_mac_arm64 ]
+    name: "Lipo-x86_64-aarch64-libs" 
+    steps:
+      - uses: actions/checkout@v4      
+      - uses: actions/download-artifact@v4
+        with:
+          name: mac_x86
+          path: ffmpeg/macos-x86  
+      - uses: actions/download-artifact@v4
+        with:
+          name: mac_arm64
+          path: ffmpeg/macos-arm64    
+      - run: sh lipo.sh         
+        working-directory: ${{ github.workspace }}/.github/actions/mac     
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: out/macos
           if-no-files-found: error
 
   vendor_package:
@@ -129,12 +159,30 @@ jobs:
       - build_linux_x86
       - build_mac_x86
       - build_mac_arm64
+      - Lipo-x86_64-aarch64-libs
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/download-artifact@v3.0.2
+    - uses: actions/download-artifact@v4
       with:
-        path: ffmpeg
-    - uses: actions/upload-artifact@v3.1.2
+        name: macos
+        path: ffmpeg/macos    
+    - uses: actions/download-artifact@v4
+      with:
+        name: mac_arm64
+        path: ffmpeg/macos-arm64
+    - uses: actions/download-artifact@v4
+      with:
+        name: mac_x86
+        path: ffmpeg/macos-x86       
+    - uses: actions/download-artifact@v4
+      with:
+        name: linux_x86
+        path: ffmpeg/linux
+    - uses: actions/download-artifact@v4
+      with:
+        name: win_x86
+        path: ffmpeg/windows                           
+    - uses: actions/upload-artifact@v4
       with:
         name: ffmpeg_vendor_package_all_builds
         path: ffmpeg
