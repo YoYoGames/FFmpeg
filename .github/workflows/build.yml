@@ -21,14 +21,14 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
           conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
       - name: Run the script to make the right folder
-        run: python {{ github.workspace }}/.github/actions/win/win_build_script.py 
+        run: python3 ${{ github.workspace }}.github/actions/win/win_build_script.py 
       - uses: actions/upload-artifact@v4
         with:
           name: win_x86
@@ -53,7 +53,7 @@ jobs:
           conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - name: Run the script to make the right folder
-        run: python {{ github.workspace }}/.github/actions/linux/linux_build_script.py 
+        run: python3 ${{ github.workspace }}.github/actions/linux/linux_build_script.py 
       - uses: actions/upload-artifact@v4
         with:
           name: linux_x86
@@ -88,7 +88,7 @@ jobs:
           find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/x86_64/bin/
           popd
       - name: Run the script to make the right folder
-        run: python {{ github.workspace }}/.github/actions/mac/mac_build_script.py 
+        run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py 
       - uses: actions/upload-artifact@v4
         with:
           name: mac_x86
@@ -124,7 +124,7 @@ jobs:
           find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/armv8/bin/
           popd
       - name: Run the script to make the right folder
-        run: python {{ github.workspace }}/.github/actions/mac/mac_build_script.py 
+        run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py 
       - uses: actions/upload-artifact@v4
         with:
           name: mac_arm64
