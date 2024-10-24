@@ -133,6 +133,7 @@ jobs:
 
   Lipo-x86_64-aarch64-libs:
     runs-on: macos-13-xl
+    needs: [ build_mac_x86, build_mac_arm64 ]
     name: "Lipo-x86_64-aarch64-libs" 
     steps:
       - uses: actions/download-artifact@v4
