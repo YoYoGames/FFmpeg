@@ -33,7 +33,7 @@ os.makedirs(target_dir, exist_ok=True)
 def find_binary_file(binary_name):
     for root, dirs, files in os.walk(base_bin_dir):
         for file in files:
-            if binary_name == file:
+            if binary_name in file:
                 return os.path.join(root, file)
     return None
 
@@ -45,7 +45,7 @@ def find_library_file(library_name):
     return None
 
 for filename in files_to_copy:
-    if filename in ["ffmpeg", "ffprobe", "charset.1.dll"]:
+    if filename in ["ffmpeg.exe", "ffprobe.exe", "charset.1.dll"]:
         source_path = find_binary_file(filename) 
     else:
         source_path = find_library_file(filename) 

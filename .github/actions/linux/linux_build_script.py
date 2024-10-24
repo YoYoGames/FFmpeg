@@ -33,7 +33,7 @@ os.makedirs(target_dir, exist_ok=True)
 def find_binary_file(binary_name):
     for root, dirs, files in os.walk(base_bin_dir):
         for file in files:
-            if binary_name == file:
+            if binary_name in file:
                 return os.path.join(root, file)
     return None
 
