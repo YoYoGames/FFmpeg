@@ -107,7 +107,7 @@ jobs:
         run: |
           export HOMEBREW_NO_AUTO_UPDATE=1
           brew install --force --overwrite python@3.11 python@3.12 cmake conan
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
           conan profile detect
@@ -124,10 +124,29 @@ jobs:
           find . -type f -name '*.dylib' -print0 | xargs -I {} cp {} full_deploy/host/ffmpeg/6.1/Release/armv8/bin/
           popd
       - name: Run the script to make the right folder
-        run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py 
+        run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py       
       - uses: actions/upload-artifact@v4
         with:
           name: mac_arm64
+          path: out/macos
+          if-no-files-found: error
+
+  Lipo-x86_64-aarch64-libs:
+    runs-on: macos-13-xl
+    name: "Lipo-x86_64-aarch64-libs" 
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: mac_x86
+          path: ffmpeg/macos-x86  
+      - uses: actions/download-artifact@v4
+        with:
+          name: mac_arm64
+          path: ffmpeg/macos-arm64    
+      - run: lipo -create -output "ffmpeg/macos" "ffmpeg/macos-arm64" "ffmpeg/macos-x86"                 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
           path: out/macos
           if-no-files-found: error
 
@@ -141,12 +160,16 @@ jobs:
     steps:
     - uses: actions/download-artifact@v4
       with:
+        name: macos
+        path: ffmpeg/macos    
+    - uses: actions/download-artifact@v4
+      with:
         name: mac_arm64
         path: ffmpeg/macos-arm64
     - uses: actions/download-artifact@v4
       with:
         name: mac_x86
-        path: ffmpeg/macos
+        path: ffmpeg/macos-x86       
     - uses: actions/download-artifact@v4
       with:
         name: linux_x86
