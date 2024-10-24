@@ -5,7 +5,7 @@ github_workspace = os.getenv('GITHUB_WORKSPACE')
 
 base_lib_dir = os.path.join(github_workspace, 'out/full_deploy/host')
 
-bin_base_dir = os.path.join(github_workspace, 'out/full_deploy/host/ffmpeg')
+base_bin_dir = os.path.join(github_workspace, 'out/full_deploy/host/ffmpeg')
 
 target_dir = os.path.join(github_workspace, 'out/macos')
 
@@ -31,14 +31,14 @@ files_to_copy = [
 os.makedirs(target_dir, exist_ok=True)
 
 def find_binary_file(binary_name):
-    for root, dirs, files in os.walk(bin_base_dir):
+    for root, files in os.walk(base_bin_dir):
         for file in files:
             if binary_name == file:
                 return os.path.join(root, file)
     return None
 
 def find_library_file(library_name):
-    for root, dirs, files in os.walk(base_lib_dir):
+    for root, files in os.walk(base_lib_dir):
         for file in files:
             if library_name in file:
                 return os.path.join(root, file)
