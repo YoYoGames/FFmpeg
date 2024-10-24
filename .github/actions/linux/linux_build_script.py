@@ -42,7 +42,7 @@ def find_library_file(library_name):
     return None
 
 for filename in files_to_copy:
-    if filename in ["ffmpeg", "ffprobe", "libcharset.so.1"]:
+    if filename in ["ffmpeg", "ffprobe"]:
         source_path = find_binary_file(filename) 
     else:
         source_path = find_library_file(filename) 
