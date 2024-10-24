@@ -3,7 +3,7 @@
 # Define the directories
 X86_64_DIR="$GITHUB_WORKSPACE/ffmpeg/macos-x86"
 ARM64_DIR="$GITHUB_WORKSPACE/ffmpeg/macos-arm64"
-OUTPUT_DIR="$GITHUB_WORKSPACE/ffmpeg/macos"
+OUTPUT_DIR="$GITHUB_WORKSPACE/out/macos"
 
 # Create output directory if it doesn't exist
 mkdir -p "$OUTPUT_DIR"
