@@ -30,10 +30,12 @@ jobs:
 
     env:
       VERSION: ${{ github.event.inputs.SOURCE_MAJOR_VERSION }}.${{ github.event.inputs.SOURCE_MINOR_VERSION }}.${{ github.event.inputs.SOURCE_REV_NUMBER }}.${{ github.run_number }}
-      GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      
     steps:
     - uses: actions/checkout@v4
     - name: Download FFmpeg release zip
+      env:
+        GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
       run: |
         echo "Downloading ffmpeg.zip from latest release..."
         gh release download --repo YoYoGames/FFmpeg --pattern "ffmpeg.zip" --dir ./
