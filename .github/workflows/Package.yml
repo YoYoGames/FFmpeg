@@ -61,8 +61,8 @@ jobs:
           echo "Found package at $PACKAGE_PATH. Pushing..."
           dotnet nuget push "$PACKAGE_PATH" \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key "${GH_TOKEN}" || { echo "Failed to push package."; exit 1; } \
-            --skip-duplicate
+            --api-key "${GH_TOKEN}" \
+            --skip-duplicate || { echo "Failed to push package."; exit 1; }
           echo "Package published successfully."
         else
           echo "Error: NuGet package not found at expected path. Failing..."
