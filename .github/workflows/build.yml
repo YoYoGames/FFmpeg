@@ -43,7 +43,7 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          sudo pip install conan
+          sudo pip install conan --break-system-packages
       - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
@@ -61,7 +61,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ "Release" ]
-    runs-on: ide
+    runs-on: macos-13
     name: "x86_64 macos ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
@@ -94,7 +94,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ "Release" ]
-    runs-on: ide
+    runs-on: macos-13
     name: "aarch64 macos ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
