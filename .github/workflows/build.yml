@@ -2,7 +2,6 @@ name: Build
 
 on:
   workflow_dispatch:
-  push:
   pull_request:
 
 permissions:
@@ -40,12 +39,12 @@ jobs:
       fail-fast: false
       matrix:
         build_type: ["Release"]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: "x86_64 linux ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
         run: |
-          sudo pip install conan
+          pipx install conan
       - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
@@ -65,7 +64,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ "Release" ]
-    runs-on: macos-latest
+    runs-on: macos-13
     name: "x86_64 macos ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
@@ -100,7 +99,7 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ "Release" ]
-    runs-on: macos-13-xl
+    runs-on: macos-13
     name: "aarch64 macos ${{ matrix.build_type }}"
     steps:
       - name: Install Dependencies
@@ -132,7 +131,7 @@ jobs:
           if-no-files-found: error
 
   Lipo-x86_64-aarch64-libs:
-    runs-on: macos-13-xl
+    runs-on: macos-13
     needs: [ build_mac_x86, build_mac_arm64 ]
     name: "Lipo-x86_64-aarch64-libs" 
     steps:
