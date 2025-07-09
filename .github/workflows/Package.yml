@@ -52,7 +52,7 @@ jobs:
 
     - name: Push NuGet to GitHub Packages
       run: |
-        PACKAGE_PATH=$(find ./nupkgs -name "FFmpeg.$VERSION.nupkg")
+        PACKAGE_PATH=$(find ./nupkgs -name "FFmpeg.Binaries.${{ env.VERSION }}.nupkg")
         if [ -f "$PACKAGE_PATH" ]; then
           echo "Found package at $PACKAGE_PATH. Pushing..."
           dotnet nuget push "$PACKAGE_PATH" \
