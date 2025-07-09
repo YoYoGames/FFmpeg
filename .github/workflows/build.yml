@@ -42,7 +42,7 @@ jobs:
     steps:
       - name: Install Dependencies
         run: |
-          sudo pip install conan --break-system-packages
+          pipx install conan
       - uses: actions/checkout@v4
       - name: Run on architecture
         run: |
