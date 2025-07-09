@@ -41,6 +41,9 @@ jobs:
         gh release download --repo YoYoGames/FFmpeg --pattern "ffmpeg.zip" --dir ./
         unzip -q ffmpeg.zip -d ffmpeg
 
+    - name: Restore NuGet packages
+      run: dotnet restore ffmpeg.csproj        
+
     - name: Pack NuGet
       run: |
         echo "Packing the NuGet package with version: $VERSION..."
