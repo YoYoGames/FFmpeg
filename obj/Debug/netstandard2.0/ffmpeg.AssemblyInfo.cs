@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Cross-platform FFmpeg binaries using runtime identifiers")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c3170ad45d886bcfa3a27436824555c7bff02892")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f5dec7e3d73c510445741ef594ced4bb362528a2")]
 [assembly: System.Reflection.AssemblyProductAttribute("ffmpeg")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ffmpeg")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
