@@ -1,4 +1,4 @@
-name: Build and Publish NuGet
+name: Publish NuGet Package
 
 on:
   workflow_dispatch:
@@ -33,10 +33,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Install GitHub CLI
-      uses: cli/cli-action@v1
-
     - name: Download FFmpeg release zip
       run: |
         echo "Downloading ffmpeg.zip from latest release..."
