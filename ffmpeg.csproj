@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>FFmpeg.Binaries</PackageId>
+    <!-- <Version>1.0.0</Version> -->
+    <Authors>YourName</Authors>
+    <Description>Cross-platform FFmpeg binaries using runtime identifiers</Description>
+    <PackageType>Dependency</PackageType>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="ffmpeg\**\*" Pack="true" PackagePath="ffmpeg\" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

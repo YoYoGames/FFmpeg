@@ -1,0 +1,70 @@
+name: Build and Publish NuGet
+
+on:
+  workflow_dispatch:
+    inputs:
+      SOURCE_MAJOR_VERSION:
+        description: "SOURCE_MAJOR_VERSION"
+        required: true
+        default: "2024"
+        type: string
+      SOURCE_MINOR_VERSION:
+        description: "SOURCE_MINOR_VERSION"
+        required: true
+        default: "1100"
+        type: string
+      SOURCE_REV_NUMBER:
+        description: "SOURCE_REV_NUMBER"
+        required: true
+        default: "0"
+        type: string
+
+env:
+  GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+  BUILD_CONFIGURATION: Release
+
+jobs:
+  build-and-publish:
+    name: Build and Publish NuGet
+    runs-on: ubuntu-24.04
+
+    env:
+      VERSION: ${{ github.event.inputs.SOURCE_MAJOR_VERSION }}.${{ github.event.inputs.SOURCE_MINOR_VERSION }}.${{ github.event.inputs.SOURCE_REV_NUMBER }}.${{ github.run_number }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install GitHub CLI
+      uses: cli/cli-action@v1
+
+    - name: Download FFmpeg release zip
+      run: |
+        echo "Downloading ffmpeg.zip from latest release..."
+        gh release download --repo YoYoGames/FFmpeg --pattern "ffmpeg.zip" --dir ./
+        unzip -q ffmpeg.zip -d ffmpeg
+
+    - name: Restore tools and SDK
+      run: |
+        dotnet --info
+        dotnet restore
+
+    - name: Pack NuGet
+      run: |
+        echo "Packing the NuGet package with version: $VERSION..."
+        dotnet pack ffmpeg.csproj --output ./nupkgs -p:Version=$VERSION -c Release --no-build
+        echo "NuGet package created in ./nupkgs/"
+
+    - name: Push NuGet to GitHub Packages
+      run: |
+        PACKAGE_PATH=$(find ./nupkgs -name "FFmpeg.$VERSION.nupkg")
+        if [ -f "$PACKAGE_PATH" ]; then
+          echo "Found package at $PACKAGE_PATH. Pushing..."
+          dotnet nuget push "$PACKAGE_PATH" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key "${GH_TOKEN}" \
+            --skip-duplicate
+          echo "Package published successfully."
+        else
+          echo "Error: NuGet package not found at expected path. Failing..."
+          exit 1
+        fi
