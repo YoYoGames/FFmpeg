@@ -19,6 +19,10 @@ on:
         default: "0"
         type: string
 
+permissions:
+  contents: write  # publish release
+  packages: write  # publish package
+
 env:
   GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
   BUILD_CONFIGURATION: Release
@@ -57,7 +61,7 @@ jobs:
           echo "Found package at $PACKAGE_PATH. Pushing..."
           dotnet nuget push "$PACKAGE_PATH" \
             --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
-            --api-key "${GH_TOKEN}" \
+            --api-key "${GH_TOKEN}" || { echo "Failed to push package."; exit 1; } \
             --skip-duplicate
           echo "Package published successfully."
         else
