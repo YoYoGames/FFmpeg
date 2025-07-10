@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>FFmpeg.Binaries</PackageId>
     <!-- <Version>1.0.0</Version> -->
-    <Authors>YourName</Authors>
+    <Authors>ksuchitra532</Authors>
     <Description>Cross-platform FFmpeg binaries using runtime identifiers</Description>
     <PackageType>Dependency</PackageType>
     <IncludeBuildOutput>false</IncludeBuildOutput>
