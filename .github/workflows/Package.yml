@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-24.04
 
     env:
-      VERSION: ${{ github.event.inputs.SOURCE_MAJOR_VERSION }}.${{ github.event.inputs.SOURCE_MINOR_VERSION }}.${{ github.event.inputs.SOURCE_REV_NUMBER }}.${{ github.run_number }}
+      VERSION: ${{ github.event.inputs.SOURCE_MAJOR_VERSION }}.${{ github.event.inputs.SOURCE_MINOR_VERSION }}.${{ github.event.inputs.SOURCE_REV_NUMBER }}
       
     steps:
     - uses: actions/checkout@v4
