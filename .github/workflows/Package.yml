@@ -1,45 +1,32 @@
 name: Publish NuGet Package
 
 on:
-  workflow_dispatch:
-    inputs:
-      SOURCE_MAJOR_VERSION:
-        description: "SOURCE_MAJOR_VERSION"
-        required: true
-        default: "2024"
-        type: string
-      SOURCE_MINOR_VERSION:
-        description: "SOURCE_MINOR_VERSION"
-        required: true
-        default: "1100"
-        type: string
-      SOURCE_REV_NUMBER:
-        description: "SOURCE_REV_NUMBER"
-        required: true
-        default: "0"
-        type: string
+  workflow_dispatch:  # Now manual trigger, but no inputs
 
 permissions:
-  contents: write  # publish release
-  packages: write  # publish package
+  contents: write
+  packages: write
 
 env:
   GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
   BUILD_CONFIGURATION: Release
 
 jobs:
-  build-and-publish:
-    name: Build and Publish NuGet
+  publish:
+    name: Publish NuGet
     runs-on: ubuntu-24.04
 
-    env:
-      VERSION: ${{ github.event.inputs.SOURCE_MAJOR_VERSION }}.${{ github.event.inputs.SOURCE_MINOR_VERSION }}.${{ github.event.inputs.SOURCE_REV_NUMBER }}
-      
     steps:
     - uses: actions/checkout@v4
+
+    - name: Read version from RELEASE file
+      id: version
+      run: |
+        VERSION=$(cat RELEASE | tr -d '\n')
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "Version read from RELEASE: $VERSION"
+
     - name: Download FFmpeg release zip
-      env:
-        GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
       run: |
         echo "Downloading ffmpeg.zip from latest release..."
         gh release download --repo YoYoGames/FFmpeg --pattern "ffmpeg.zip" --dir ./
@@ -56,7 +43,7 @@ jobs:
 
     - name: Push NuGet to GitHub Packages
       run: |
-        PACKAGE_PATH=$(find ./nupkgs -name "FFmpeg.Binaries.${{ env.VERSION }}.nupkg")
+        PACKAGE_PATH=$(find ./nupkgs -name "FFmpeg.Binaries.${VERSION}.nupkg")
         if [ -f "$PACKAGE_PATH" ]; then
           echo "Found package at $PACKAGE_PATH. Pushing..."
           dotnet nuget push "$PACKAGE_PATH" \
