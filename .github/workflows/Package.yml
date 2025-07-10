@@ -12,8 +12,8 @@ env:
   BUILD_CONFIGURATION: Release
 
 jobs:
-  build-and-publish:
-    name: Build and Publish NuGet
+  publish:
+    name: Publish NuGet
     runs-on: ubuntu-24.04
 
     steps:
