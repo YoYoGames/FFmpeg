@@ -54,7 +54,7 @@ for filename in files_to_copy:
 
     if source_path is not None and os.path.isfile(source_path):
         real_path = os.path.realpath(source_path)
-        dest_path = os.path.join(target_dir, os.path.basename(source_path))
+        dest_path = os.path.join(target_dir, filename)
         shutil.copy2(real_path, dest_path)
         print(f"Copied {real_path} -> {dest_path}")
     else:
