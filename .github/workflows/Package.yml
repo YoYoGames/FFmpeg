@@ -22,9 +22,10 @@ jobs:
     - name: Read version from RELEASE file
       id: version
       run: |
-        VERSION=$(cat RELEASE | tr -d '\n')
+        BASE_VERSION=$(cat RELEASE | tr -d '\n')
+        VERSION="${BASE_VERSION}.${{ github.run_number }}"
         echo "VERSION=$VERSION" >> $GITHUB_ENV
-        echo "Version read from RELEASE: $VERSION"
+        echo "Version: $VERSION"
 
     - name: Download FFmpeg release zip
       run: |
