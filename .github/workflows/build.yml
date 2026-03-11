@@ -20,7 +20,9 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install conan
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
           conan profile detect
@@ -28,7 +30,7 @@ jobs:
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/win/win_build_script.py 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: win_x86
           path: out/windows
@@ -45,7 +47,9 @@ jobs:
       - name: Install Dependencies
         run: |
           pipx install conan
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
           conan profile detect
@@ -53,7 +57,7 @@ jobs:
           conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/linux/linux_build_script.py 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux_x86
           path: out/linux
@@ -70,7 +74,9 @@ jobs:
       - name: Install Dependencies
         run: |
           brew install --overwrite python@3.12 cmake conan
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
           conan profile detect
@@ -88,7 +94,7 @@ jobs:
           popd
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: mac_x86
           path: out/macos
@@ -106,7 +112,9 @@ jobs:
         run: |
           export HOMEBREW_NO_AUTO_UPDATE=1
           brew install --force --overwrite python@3.11 python@3.12 cmake conan
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
           conan profile detect
@@ -124,7 +132,7 @@ jobs:
           popd
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py       
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: mac_arm64
           path: out/macos
@@ -152,12 +160,15 @@ jobs:
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
+      - uses: actions/checkout@v6
         with:
           repository: YoYoGames/conan-recipes
           path: conan-recipes
           token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          show-progress: false
       - name: Set up Conan
         run: |
           uvx conan config install conan-recipes/conan
@@ -177,7 +188,7 @@ jobs:
             -o ffmpeg/*:with_libsvtav1=False
       - name: Run the script to make the right folder
         run: python3 "$GITHUB_WORKSPACE/.github/actions/linux/linux_build_script.py" --target-dir linux-x64-steamrt-3.0
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux_x64_steamrt
           path: out/linux-x64-steamrt-3.0
@@ -188,18 +199,20 @@ jobs:
     needs: [ build_mac_x86, build_mac_arm64 ]
     name: "Lipo-x86_64-aarch64-libs" 
     steps:
-      - uses: actions/checkout@v4      
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
+      - uses: actions/download-artifact@v8
         with:
           name: mac_x86
           path: ffmpeg/macos-x86  
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: mac_arm64
           path: ffmpeg/macos-arm64    
       - run: sh lipo.sh         
         working-directory: ${{ github.workspace }}/.github/actions/mac     
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos
           path: out/macos
@@ -215,38 +228,38 @@ jobs:
       - Lipo-x86_64-aarch64-libs
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: macos
         path: ffmpeg/macos    
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: mac_arm64
         path: ffmpeg/macos-arm64
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: mac_x86
         path: ffmpeg/macos-x86       
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: linux_x86
         path: ffmpeg/linux
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: linux_x64_steamrt
         path: ffmpeg/linux_steamrt
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: win_x86
         path: ffmpeg/windows                           
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: ffmpeg_vendor_package_all_builds
         path: ffmpeg
         if-no-files-found: error
     - run: 7z a -tzip ffmpeg.zip ffmpeg
     - name: Create Release
-      uses: ncipollo/release-action@v1.12.0
+      uses: ncipollo/release-action@v1.20.0
       with:
         artifactErrorsFailBuild: true
         artifacts: ffmpeg.zip
