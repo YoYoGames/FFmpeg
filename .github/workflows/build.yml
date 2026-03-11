@@ -130,6 +130,57 @@ jobs:
           path: out/macos
           if-no-files-found: error
 
+  build_linux_x64_steamrt:
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ["Release"]
+    runs-on: ubuntu-24.04
+    container:
+      image: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20250826.159138
+    name: "x86_64 linux steamrt-3.0 ${{ matrix.build_type }}"
+    steps:
+      - name: Install LLVM
+        run: |
+          apt-get update
+          apt-get install -y wget gnupg
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          echo "deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-21 main" > /etc/apt/sources.list.d/llvm.list
+          apt-get update
+          apt-get install -y clang-21 lld-21 llvm-21 libc++-21-dev libc++abi-21-dev
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: YoYoGames/conan-recipes
+          path: conan-recipes
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      - name: Set up Conan
+        run: |
+          uvx conan config install conan-recipes/conan
+          # Strip LTO, lld flags and LD override that break libtool-based dependencies (libiconv, etc.)
+          PROFILE=~/.conan2/profiles/"steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release"
+          sed -i -e 's/"-fuse-ld=lld", "-flto=thin", //g' -e '/^LD=/d' "$PROFILE"
+      - name: Run on architecture
+        env:
+          _LLVM_TOOLCHAIN_ROOT: /usr/lib/llvm-21
+          GM_CMAKE_TOOLCHAINS_DIR: ${{ github.workspace }}/conan-recipes/toolchains
+        run: |
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 \
+            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release"
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 \
+            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release"
+      - name: Run the script to make the right folder
+        run: python3 ${{ github.workspace }}/.github/actions/linux/linux_build_script.py --target-dir linux-x64-steamrt-3.0
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux_x64_steamrt
+          path: out/linux-x64-steamrt-3.0
+          if-no-files-found: error
+
   Lipo-x86_64-aarch64-libs:
     runs-on: macos-13
     needs: [ build_mac_x86, build_mac_arm64 ]
@@ -156,6 +207,7 @@ jobs:
     needs:
       - build_win_x86
       - build_linux_x86
+      - build_linux_x64_steamrt
       - build_mac_x86
       - build_mac_arm64
       - Lipo-x86_64-aarch64-libs
@@ -177,6 +229,10 @@ jobs:
       with:
         name: linux_x86
         path: ffmpeg/linux
+    - uses: actions/download-artifact@v4
+      with:
+        name: linux_x64_steamrt
+        path: ffmpeg/linux_steamrt
     - uses: actions/download-artifact@v4
       with:
         name: win_x86
