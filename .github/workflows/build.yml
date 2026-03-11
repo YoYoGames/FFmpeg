@@ -170,9 +170,11 @@ jobs:
           GM_CMAKE_TOOLCHAINS_DIR: ${{ github.workspace }}/conan-recipes/toolchains
         run: |
           uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 \
-            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release"
+            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release" \
+            -o ffmpeg/*:with_libsvtav1=False
           uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 \
-            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release"
+            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release" \
+            -o ffmpeg/*:with_libsvtav1=False
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/linux/linux_build_script.py --target-dir linux-x64-steamrt-3.0
       - uses: actions/upload-artifact@v4
