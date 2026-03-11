@@ -17,17 +17,18 @@ jobs:
     runs-on: windows-latest
     name: "x86_64 win ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          pip install conan
+          irm https://astral.sh/uv/install.ps1 | iex
+          echo "$env:USERPROFILE\.local\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
       - uses: actions/checkout@v6
         with:
           show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/win/win_build_script.py 
       - uses: actions/upload-artifact@v7
@@ -44,17 +45,18 @@ jobs:
     runs-on: ubuntu-24.04
     name: "x86_64 linux ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          pipx install conan
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v6
         with:
           show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/linux/linux_build_script.py 
       - uses: actions/upload-artifact@v7
@@ -71,17 +73,18 @@ jobs:
     runs-on: macos-latest
     name: "x86_64 macos ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          brew install --overwrite python@3.12 cmake conan
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v6
         with:
           show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
       - name: Fixing rpaths
         run: |
           ls
@@ -108,18 +111,18 @@ jobs:
     runs-on: macos-15
     name: "aarch64 macos ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          export HOMEBREW_NO_AUTO_UPDATE=1
-          brew install --force --overwrite python@3.11 python@3.12 cmake conan
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v6
         with:
           show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=armv8
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=armv8
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=armv8
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=armv8
       - name: Fixing rpaths
         run: |
           ls
