@@ -17,18 +17,21 @@ jobs:
     runs-on: windows-latest
     name: "x86_64 win ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          pip install conan
-      - uses: actions/checkout@v4
+          irm https://astral.sh/uv/install.ps1 | iex
+          echo "$env:USERPROFILE\.local\bin" | Out-File -FilePath $env:GITHUB_PATH -Append
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/win/win_build_script.py 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: win_x86
           path: out/windows
@@ -42,18 +45,21 @@ jobs:
     runs-on: ubuntu-24.04
     name: "x86_64 linux ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          pipx install conan
-      - uses: actions/checkout@v4
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 -c tools.system.package_manager:mode=install -c tools.system.package_manager:sudo=True
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/linux/linux_build_script.py 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: linux_x86
           path: out/linux
@@ -64,18 +70,21 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ "Release" ]
-    runs-on: macos-13
+    runs-on: macos-latest
     name: "x86_64 macos ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          brew install --overwrite python@3.12 cmake conan
-      - uses: actions/checkout@v4
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64
       - name: Fixing rpaths
         run: |
           ls
@@ -88,7 +97,7 @@ jobs:
           popd
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: mac_x86
           path: out/macos
@@ -99,19 +108,21 @@ jobs:
       fail-fast: false
       matrix:
         build_type: [ "Release" ]
-    runs-on: macos-13
+    runs-on: macos-15
     name: "aarch64 macos ${{ matrix.build_type }}"
     steps:
-      - name: Install Dependencies
+      - name: Install uv
         run: |
-          export HOMEBREW_NO_AUTO_UPDATE=1
-          brew install --force --overwrite python@3.11 python@3.12 cmake conan
-      - uses: actions/checkout@v4
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
       - name: Run on architecture
         run: |
-          conan profile detect
-          conan create conanfile.py --build=missing -r conancenter -s arch=armv8
-          conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=armv8
+          uvx conan profile detect
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=armv8
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=armv8
       - name: Fixing rpaths
         run: |
           ls
@@ -124,29 +135,87 @@ jobs:
           popd
       - name: Run the script to make the right folder
         run: python3 ${{ github.workspace }}/.github/actions/mac/mac_build_script.py       
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: mac_arm64
           path: out/macos
           if-no-files-found: error
 
+  build_linux_x64_steamrt:
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: ["Release"]
+    runs-on: ubuntu-24.04
+    container:
+      image: registry.gitlab.steamos.cloud/steamrt/sniper/sdk:3.0.20250826.159138
+    name: "x86_64 linux steamrt-3.0 ${{ matrix.build_type }}"
+    steps:
+      - name: Install LLVM
+        run: |
+          apt-get update
+          apt-get install -y wget gnupg
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          echo "deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-21 main" > /etc/apt/sources.list.d/llvm.list
+          apt-get update
+          apt-get install -y clang-21 lld-21 llvm-21 libc++-21-dev libc++abi-21-dev
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
+      - uses: actions/checkout@v6
+        with:
+          repository: YoYoGames/conan-recipes
+          path: conan-recipes
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          show-progress: false
+      - name: Set up Conan
+        run: |
+          uvx conan config install conan-recipes/conan
+          # Strip LTO, lld flags and LD override that break libtool-based dependencies (libiconv, etc.)
+          PROFILE=~/.conan2/profiles/"steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release"
+          sed -i -e 's/"-fuse-ld=lld", "-flto=thin", //g' -e '/^LD=/d' "$PROFILE"
+      - name: Run on architecture
+        env:
+          _LLVM_TOOLCHAIN_ROOT: /usr/lib/llvm-21
+          GM_CMAKE_TOOLCHAINS_DIR: ${{ github.workspace }}/conan-recipes/toolchains
+        run: |
+          uvx conan create conanfile.py --build=missing -r conancenter -s arch=x86_64 \
+            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release" \
+            -o ffmpeg/*:with_libsvtav1=False
+          uvx conan install --requires=ffmpeg/6.1 --deployer full_deploy --output-folder out -s arch=x86_64 \
+            -pr:a "steamrt-sniper-staticlibcpp#21.1.1+3.0.20250826.159138_Release" \
+            -o ffmpeg/*:with_libsvtav1=False
+      - name: Run the script to make the right folder
+        run: python3 "$GITHUB_WORKSPACE/.github/actions/linux/linux_build_script.py" --target-dir linux-x64-steamrt-3.0
+      - uses: actions/upload-artifact@v7
+        with:
+          name: linux_x64_steamrt
+          path: out/linux-x64-steamrt-3.0
+          if-no-files-found: error
+
   Lipo-x86_64-aarch64-libs:
-    runs-on: macos-13
+    runs-on: macos-15
     needs: [ build_mac_x86, build_mac_arm64 ]
     name: "Lipo-x86_64-aarch64-libs" 
     steps:
-      - uses: actions/checkout@v4      
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v6
+        with:
+          show-progress: false
+      - uses: actions/download-artifact@v8
         with:
           name: mac_x86
           path: ffmpeg/macos-x86  
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: mac_arm64
           path: ffmpeg/macos-arm64    
       - run: sh lipo.sh         
         working-directory: ${{ github.workspace }}/.github/actions/mac     
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: macos
           path: out/macos
@@ -156,39 +225,44 @@ jobs:
     needs:
       - build_win_x86
       - build_linux_x86
+      - build_linux_x64_steamrt
       - build_mac_x86
       - build_mac_arm64
       - Lipo-x86_64-aarch64-libs
     runs-on: ubuntu-22.04
     steps:
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: macos
         path: ffmpeg/macos    
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: mac_arm64
         path: ffmpeg/macos-arm64
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: mac_x86
         path: ffmpeg/macos-x86       
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
       with:
         name: linux_x86
         path: ffmpeg/linux
-    - uses: actions/download-artifact@v4
+    - uses: actions/download-artifact@v8
+      with:
+        name: linux_x64_steamrt
+        path: ffmpeg/linux_steamrt
+    - uses: actions/download-artifact@v8
       with:
         name: win_x86
         path: ffmpeg/windows                           
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       with:
         name: ffmpeg_vendor_package_all_builds
         path: ffmpeg
         if-no-files-found: error
     - run: 7z a -tzip ffmpeg.zip ffmpeg
     - name: Create Release
-      uses: ncipollo/release-action@v1.12.0
+      uses: ncipollo/release-action@v1.20.0
       with:
         artifactErrorsFailBuild: true
         artifacts: ffmpeg.zip

@@ -1,10 +1,15 @@
+import argparse
 import os
 import shutil
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--target-dir', default='linux', help='Output subdirectory under out/ (default: linux)')
+args = parser.parse_args()
 
 github_workspace = os.getenv('GITHUB_WORKSPACE')
 base_lib_dir = os.path.join(github_workspace, 'out/full_deploy/host')
 base_bin_dir = os.path.join(github_workspace, 'out/full_deploy/host/ffmpeg')
-target_dir = os.path.join(github_workspace, 'out/linux')
+target_dir = os.path.join(github_workspace, 'out', args.target_dir)
 
 os.makedirs(target_dir, exist_ok=True)
 
@@ -48,8 +53,10 @@ for filename in files_to_copy:
         source_path = find_library_file(filename) 
 
     if source_path is not None and os.path.isfile(source_path):
-        shutil.copy2(source_path, target_dir)
-        print(f"Copied {source_path} to {target_dir}")
+        real_path = os.path.realpath(source_path)
+        dest_path = os.path.join(target_dir, filename)
+        shutil.copy2(real_path, dest_path)
+        print(f"Copied {real_path} -> {dest_path}")
     else:
         print(f"File not found: {filename} (resolved path: {source_path})")
 
